@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>robot_joy_control</name>
+  <version>0.1.0</version>
+  <description>Joystick control for robot joints (head, waist, etc.) across multiple robot platforms.</description>
+  <maintainer email="garion0685@gmail.com">hiseongmin</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>trajectory_msgs</exec_depend>
+  <exec_depend>joy</exec_depend>
+</package>

@@ -1,0 +1,33 @@
+<launch>
+  <!-- Joystick device -->
+  <arg name="dev"             default="/dev/input/js0" />
+  <arg name="deadzone"        default="0.05" />
+  <arg name="autorepeat_rate" default="30" />
+
+  <!-- Head joint parameters -->
+  <arg name="max_angle"      default="1.047" />  <!-- 60 deg -->
+  <arg name="axis_yaw"       default="3" />
+  <arg name="axis_pitch"     default="4" />
+  <arg name="snap_threshold" default="0.1" />
+  <arg name="move_duration"  default="0.5" />
+  <arg name="yaw_invert"     default="1.0" />
+  <arg name="pitch_invert"   default="1.0" />
+  <arg name="rate"           default="10.0" />
+
+  <node pkg="joy" type="joy_node" name="joy_node">
+    <param name="dev"             value="$(arg dev)" />
+    <param name="deadzone"        value="$(arg deadzone)" />
+    <param name="autorepeat_rate" value="$(arg autorepeat_rate)" />
+  </node>
+
+  <node pkg="robot_joy_control" type="joy_head_nextage.py" name="joy_head_nextage" output="screen">
+    <param name="max_angle"      value="$(arg max_angle)" />
+    <param name="axis_yaw"       value="$(arg axis_yaw)" />
+    <param name="axis_pitch"     value="$(arg axis_pitch)" />
+    <param name="snap_threshold" value="$(arg snap_threshold)" />
+    <param name="move_duration"  value="$(arg move_duration)" />
+    <param name="yaw_invert"     value="$(arg yaw_invert)" />
+    <param name="pitch_invert"   value="$(arg pitch_invert)" />
+    <param name="rate"           value="$(arg rate)" />
+  </node>
+</launch>
