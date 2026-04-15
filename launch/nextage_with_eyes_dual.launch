@@ -1,0 +1,88 @@
+<launch>
+  <!-- ================================================================
+       NEXTAGE Robot with Dual Eye Display Control (Integrated)
+
+       Control mapping:
+       - Left stick (axes[0,1]): Eye gaze direction (both eyes)
+       - Right stick (axes[3,4]): NEXTAGE head movement
+       - Buttons: Eye expressions
+
+       This uses the existing demo_dual.launch structure
+       ================================================================ -->
+
+  <!-- Joystick parameters -->
+  <arg name="joy_dev"         default="/dev/input/js0" />
+
+  <!-- NEXTAGE head control parameters -->
+  <arg name="max_angle"       default="1.047" doc="Max head rotation (60 deg)" />
+  <arg name="head_rate"       default="10.0"  doc="Head control rate (Hz)" />
+
+  <!-- Eye display hardware parameters -->
+  <arg name="port_left"       default="/dev/ttyACM0" />
+  <arg name="port_right"      default="/dev/ttyACM1" />
+  <arg name="baud"            default="115200" />
+  <arg name="direction_left"  default="4" />
+  <arg name="direction_right" default="4" />
+
+  <!-- Eye movement parameters -->
+  <arg name="left_edge"       default="30.0" />
+  <arg name="right_edge"      default="-30.0" />
+  <arg name="upper_edge"      default="-30.0" />
+  <arg name="bottom_edge"     default="30.0" />
+  <arg name="x_diff"          default="30.0" />
+  <arg name="y_diff"          default="5.0" />
+
+  <!-- ================================================================
+       1. Joystick Node (shared)
+       ================================================================ -->
+  <node pkg="joy" type="joy_node" name="joy_node">
+    <param name="dev"             value="$(arg joy_dev)" />
+    <param name="deadzone"        value="0.05" />
+    <param name="autorepeat_rate" value="30" />
+  </node>
+
+  <!-- ================================================================
+       2. NEXTAGE Head Control (Right Stick - axes[3,4])
+       ================================================================ -->
+  <node pkg="robot_joy_control" type="joy_head_nextage.py" name="joy_head_nextage" output="screen">
+    <param name="max_angle"      value="$(arg max_angle)" />
+    <param name="axis_yaw"       value="3" />  <!-- Right stick horizontal -->
+    <param name="axis_pitch"     value="4" />  <!-- Right stick vertical -->
+    <param name="snap_threshold" value="0.1" />
+    <param name="move_duration"  value="0.5" />
+    <param name="yaw_invert"     value="1.0" />
+    <param name="pitch_invert"   value="1.0" />
+    <param name="rate"           value="$(arg head_rate)" />
+  </node>
+
+  <!-- ================================================================
+       3. Dual Eye Display (Left Stick - axes[0,1] + Buttons)
+       Using demo_dual.launch structure
+       ================================================================ -->
+
+  <!-- Include the dual eye demo launch file -->
+  <include file="$(find eye_display)/launch/demo_dual.launch">
+    <arg name="port_left"       value="$(arg port_left)" />
+    <arg name="port_right"      value="$(arg port_right)" />
+    <arg name="baud"            value="$(arg baud)" />
+    <arg name="direction_left"  value="$(arg direction_left)" />
+    <arg name="direction_right" value="$(arg direction_right)" />
+    <arg name="debug"           value="true" />
+  </include>
+
+  <!-- Eye joystick control (Left Stick) using namespace version -->
+  <include file="$(find eye_display)/launch/control_eye_with_joystick_namespace.launch">
+    <arg name="duration"        value="0.05" />
+    <arg name="joy_dev"         value="$(arg joy_dev)" />
+    <!-- Movement ranges -->
+    <arg name="right_left_edge"   value="$(arg left_edge)" />
+    <arg name="right_right_edge"  value="$(arg right_edge)" />
+    <arg name="right_upper_edge"  value="$(arg upper_edge)" />
+    <arg name="right_bottom_edge" value="$(arg bottom_edge)" />
+    <arg name="left_left_edge"    value="$(arg left_edge)" />
+    <arg name="left_right_edge"   value="$(arg right_edge)" />
+    <arg name="left_upper_edge"   value="$(eval arg('upper_edge') - arg('y_diff'))" />
+    <arg name="left_bottom_edge"  value="$(eval arg('bottom_edge') + arg('y_diff'))" />
+  </include>
+
+</launch>

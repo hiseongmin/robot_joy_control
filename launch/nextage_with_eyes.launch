@@ -1,0 +1,129 @@
+<launch>
+  <!-- ================================================================
+       NEXTAGE Robot with Dual Eye Display Control
+
+       This launch file integrates:
+       1. NEXTAGE head control (right joystick)
+       2. Dual eye display control (left joystick + buttons)
+
+       Control mapping:
+       - Right stick: Robot head movement (yaw/pitch)
+       - Left stick: Eye gaze direction
+       - Buttons: Eye expressions
+       ================================================================ -->
+
+  <!-- Common joystick parameters -->
+  <arg name="joy_dev"         default="/dev/input/js0" />
+  <arg name="deadzone"        default="0.05" />
+  <arg name="autorepeat_rate" default="30" />
+
+  <!-- NEXTAGE head control parameters -->
+  <arg name="max_angle"      default="1.047" doc="Max head rotation angle (rad)" />
+  <arg name="axis_yaw"       default="3"     doc="Right stick horizontal" />
+  <arg name="axis_pitch"     default="4"     doc="Right stick vertical" />
+  <arg name="move_duration"  default="0.5"   doc="Trajectory duration (sec)" />
+  <arg name="head_rate"      default="10.0"  doc="Head control rate (Hz)" />
+
+  <!-- Eye display parameters -->
+  <arg name="eye_left_port"  default="/dev/ttyACM0" doc="Left eye serial port" />
+  <arg name="eye_right_port" default="/dev/ttyACM1" doc="Right eye serial port" />
+  <arg name="eye_baud"       default="115200" />
+  <arg name="eye_direction"  default="4"      doc="Eye mounting direction" />
+
+  <!-- Eye movement ranges -->
+  <arg name="eye_left_edge"   default="30.0" />
+  <arg name="eye_right_edge"  default="-30.0" />
+  <arg name="eye_upper_edge"  default="-30.0" />
+  <arg name="eye_bottom_edge" default="30.0" />
+
+  <!-- ================================================================
+       Shared Joystick Node
+       ================================================================ -->
+  <node pkg="joy" type="joy_node" name="joy_node">
+    <param name="dev"             value="$(arg joy_dev)" />
+    <param name="deadzone"        value="$(arg deadzone)" />
+    <param name="autorepeat_rate" value="$(arg autorepeat_rate)" />
+  </node>
+
+  <!-- ================================================================
+       NEXTAGE Head Control (Right Stick)
+       ================================================================ -->
+  <node pkg="robot_joy_control" type="joy_head_nextage.py" name="joy_head_nextage" output="screen">
+    <param name="max_angle"      value="$(arg max_angle)" />
+    <param name="axis_yaw"       value="$(arg axis_yaw)" />
+    <param name="axis_pitch"     value="$(arg axis_pitch)" />
+    <param name="snap_threshold" value="0.1" />
+    <param name="move_duration"  value="$(arg move_duration)" />
+    <param name="yaw_invert"     value="1.0" />
+    <param name="pitch_invert"   value="1.0" />
+    <param name="rate"           value="$(arg head_rate)" />
+  </node>
+
+  <!-- ================================================================
+       Dual Eye Display Control (Left Stick + Buttons)
+       Using namespace architecture for scalability
+       ================================================================ -->
+
+  <!-- Right Eye (robot's perspective) -->
+  <group ns="right">
+    <!-- ROS parameters for eye configuration -->
+    <rosparam>
+      eye_display:
+        mode_right: true
+        eye_asset:
+          names: ["normal", "blink", "surprised", "sleepy", "angry", "sad", "happy"]
+    </rosparam>
+
+    <!-- Eye joystick controller -->
+    <node pkg="eye_display" type="joy_eye_status_namespace.py" name="joy_eye_status" output="screen">
+      <param name="left_edge"   value="$(arg eye_left_edge)" />
+      <param name="right_edge"  value="$(arg eye_right_edge)" />
+      <param name="upper_edge"  value="$(arg eye_upper_edge)" />
+      <param name="bottom_edge" value="$(arg eye_bottom_edge)" />
+      <param name="duration"    value="0.05" />
+    </node>
+
+    <!-- Eye display serial connection -->
+    <node pkg="rosserial_python" type="serial_node.py" name="eye_serial" output="screen">
+      <param name="port" value="$(arg eye_right_port)" />
+      <param name="baud" value="$(arg eye_baud)" />
+    </node>
+  </group>
+
+  <!-- Left Eye (robot's perspective) -->
+  <group ns="left">
+    <!-- ROS parameters for eye configuration -->
+    <rosparam>
+      eye_display:
+        mode_right: false
+        eye_asset:
+          names: ["normal", "blink", "surprised", "sleepy", "angry", "sad", "happy"]
+    </rosparam>
+
+    <!-- Eye joystick controller -->
+    <node pkg="eye_display" type="joy_eye_status_namespace.py" name="joy_eye_status" output="screen">
+      <param name="left_edge"   value="$(arg eye_left_edge)" />
+      <param name="right_edge"  value="$(arg eye_right_edge)" />
+      <param name="upper_edge"  value="$(arg eye_upper_edge)" />
+      <param name="bottom_edge" value="$(arg eye_bottom_edge)" />
+      <param name="duration"    value="0.05" />
+    </node>
+
+    <!-- Eye display serial connection -->
+    <node pkg="rosserial_python" type="serial_node.py" name="eye_serial" output="screen">
+      <param name="port" value="$(arg eye_left_port)" />
+      <param name="baud" value="$(arg eye_baud)" />
+    </node>
+  </group>
+
+  <!-- ================================================================
+       Optional: Eye position initialization
+       Centers both eyes after 5 seconds
+       ================================================================ -->
+  <!--
+  <node pkg="eye_display" type="eye_set_pose_once.py" name="eye_init"
+        args="- -x 0 - -y 0"
+        launch-prefix="bash -c 'sleep 5; $0 $@'" />
+  -->
+
+</launch>
