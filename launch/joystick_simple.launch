@@ -1,0 +1,35 @@
+<launch>
+  <!-- ================================================================
+       Simple Joystick Control (Using existing scripts)
+
+       - Uses control_eye_with_joystick_ye.launch for eyes
+       - Robot head control with 50% slower speed
+       ================================================================ -->
+
+  <!-- Parameters -->
+  <arg name="max_angle"       default="0.523" />  <!-- 30 deg = 50% speed -->
+  <arg name="move_duration"   default="0.7" />    <!-- Slower movement -->
+
+  <!-- ================================================================
+       1. Eye Control (includes joy_node)
+       Using existing ye version
+       ================================================================ -->
+  <include file="$(find eye_display)/launch/control_eye_with_joystick_ye.launch">
+    <!-- Use default parameters from that launch file -->
+  </include>
+
+  <!-- ================================================================
+       2. NEXTAGE Head Control (Right Stick)
+       ================================================================ -->
+  <node pkg="robot_joy_control" type="joy_head_nextage.py" name="joy_head_nextage" output="screen">
+    <param name="max_angle"      value="$(arg max_angle)" />
+    <param name="axis_yaw"       value="3" />
+    <param name="axis_pitch"     value="4" />
+    <param name="snap_threshold" value="0.1" />
+    <param name="move_duration"  value="$(arg move_duration)" />
+    <param name="yaw_invert"     value="1.0" />
+    <param name="pitch_invert"   value="-1.0" />
+    <param name="rate"           value="10.0" />
+  </node>
+
+</launch>
