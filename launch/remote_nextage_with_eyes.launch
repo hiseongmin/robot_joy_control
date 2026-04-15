@@ -1,0 +1,106 @@
+<launch>
+  <!-- ================================================================
+       Remote NEXTAGE Robot Control with Local Eye Display
+
+       Setup:
+       - NEXTAGE robot at: 133.11.216.57 (remote)
+       - Eye modules: Local USB connections
+       - Joystick: Local USB
+
+       Before running:
+       export ROS_MASTER_URI=http://133.11.216.57:11311
+       export ROS_IP=<your_local_ip>
+       ================================================================ -->
+
+  <!-- Local hardware parameters -->
+  <arg name="joy_dev"         default="/dev/input/js0" />
+  <arg name="port_left"       default="/dev/ttyACM0" />
+  <arg name="port_right"      default="/dev/ttyACM1" />
+  <arg name="baud"            default="115200" />
+
+  <!-- Head control parameters (for remote NEXTAGE) -->
+  <arg name="max_angle"       default="1.047" />
+  <arg name="head_rate"       default="10.0" />
+
+  <!-- Eye movement parameters -->
+  <arg name="left_edge"       default="30.0" />
+  <arg name="right_edge"      default="-30.0" />
+  <arg name="upper_edge"      default="-30.0" />
+  <arg name="bottom_edge"     default="30.0" />
+
+  <!-- ================================================================
+       1. Local Joystick Node
+       ================================================================ -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen">
+    <param name="dev"             value="$(arg joy_dev)" />
+    <param name="deadzone"        value="0.05" />
+    <param name="autorepeat_rate" value="30" />
+  </node>
+
+  <!-- ================================================================
+       2. NEXTAGE Head Control (publishes to remote robot)
+       Right stick controls head via /head_controller/command topic
+       ================================================================ -->
+  <node pkg="robot_joy_control" type="joy_head_nextage.py" name="joy_head_nextage" output="screen">
+    <param name="max_angle"      value="$(arg max_angle)" />
+    <param name="axis_yaw"       value="3" />
+    <param name="axis_pitch"     value="4" />
+    <param name="snap_threshold" value="0.1" />
+    <param name="move_duration"  value="0.5" />
+    <param name="yaw_invert"     value="1.0" />
+    <param name="pitch_invert"   value="1.0" />
+    <param name="rate"           value="$(arg head_rate)" />
+  </node>
+
+  <!-- ================================================================
+       3. Local Eye Display Control
+       Left stick + buttons control local eye modules
+       ================================================================ -->
+
+  <!-- Right eye serial and control -->
+  <group ns="right">
+    <rosparam>
+      eye_display:
+        mode_right: true
+        eye_asset:
+          names: ["normal", "blink", "surprised", "sleepy", "angry", "sad", "happy"]
+    </rosparam>
+
+    <node pkg="eye_display" type="joy_eye_status_namespace.py" name="joy_eye_status" output="screen">
+      <param name="left_edge"   value="$(arg left_edge)" />
+      <param name="right_edge"  value="$(arg right_edge)" />
+      <param name="upper_edge"  value="$(arg upper_edge)" />
+      <param name="bottom_edge" value="$(arg bottom_edge)" />
+      <param name="duration"    value="0.05" />
+    </node>
+
+    <node pkg="rosserial_python" type="serial_node.py" name="eye_serial" output="screen">
+      <param name="port" value="$(arg port_right)" />
+      <param name="baud" value="$(arg baud)" />
+    </node>
+  </group>
+
+  <!-- Left eye serial and control -->
+  <group ns="left">
+    <rosparam>
+      eye_display:
+        mode_right: false
+        eye_asset:
+          names: ["normal", "blink", "surprised", "sleepy", "angry", "sad", "happy"]
+    </rosparam>
+
+    <node pkg="eye_display" type="joy_eye_status_namespace.py" name="joy_eye_status" output="screen">
+      <param name="left_edge"   value="$(arg left_edge)" />
+      <param name="right_edge"  value="$(arg right_edge)" />
+      <param name="upper_edge"  value="$(eval arg('upper_edge') - 5)" />
+      <param name="bottom_edge" value="$(eval arg('bottom_edge') + 5)" />
+      <param name="duration"    value="0.05" />
+    </node>
+
+    <node pkg="rosserial_python" type="serial_node.py" name="eye_serial" output="screen">
+      <param name="port" value="$(arg port_left)" />
+      <param name="baud" value="$(arg baud)" />
+    </node>
+  </group>
+
+</launch>
