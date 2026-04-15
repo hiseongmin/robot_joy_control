@@ -1,0 +1,21 @@
+# Network Configuration for NEXTAGE + Eye Display Demo
+#
+# Copy this file to network_config.yaml and edit with your settings:
+#   cp network_config.yaml.example network_config.yaml
+#
+# Then edit network_config.yaml with your robot's IP address
+
+# Robot network settings
+robot:
+  ip: "10.0.0.1"  # Replace with your NEXTAGE robot IP
+  port: 11311     # ROS master port (usually 11311)
+
+# Local machine settings
+local:
+  ip: "auto"      # Use "auto" to detect, or specify like "192.168.1.50"
+
+# Hardware ports (optional)
+hardware:
+  left_eye_port: "/dev/ttyACM0"   # Left eye module serial port
+  right_eye_port: "/dev/ttyACM1"  # Right eye module serial port
+  joystick: "/dev/input/js0"      # Joystick device
