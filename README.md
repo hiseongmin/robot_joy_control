@@ -34,6 +34,36 @@ catkin_make
 source devel/setup.bash
 ```
 
+## ⚙️ Network Configuration
+
+### Option 1: Using script with arguments
+```bash
+# Auto-detect local IP
+./scripts/start_demo.sh <ROBOT_IP>
+
+# Specify both IPs
+./scripts/start_demo.sh <ROBOT_IP> <LOCAL_IP>
+
+# Example
+./scripts/start_demo.sh 192.168.1.100
+./scripts/start_demo.sh 192.168.1.100 192.168.1.50
+```
+
+### Option 2: Using config file
+```bash
+# Copy and edit config
+cd ~/catkin_ws/src/robot_joy_control
+cp config/network_config.yaml.example config/network_config.yaml
+# Edit network_config.yaml with your robot's IP
+```
+
+### Option 3: Manual setup
+```bash
+export ROS_MASTER_URI=http://<ROBOT_IP>:11311
+export ROS_IP=<YOUR_LOCAL_IP>
+roslaunch robot_joy_control remote_nextage_with_eyes.launch
+```
+
 ## 🔧 Hardware Setup
 
 1. **Connect devices:**
