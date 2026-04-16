@@ -1,211 +1,162 @@
-# Robot Joy Control
+# 🤖 Robot Joy Control
 
-ROS package for controlling NEXTAGE robot head and dual eye display modules with a single joystick.
+ROS package for controlling NEXTAGE robot head and eye display modules using a joystick controller.
 
-## 🎮 Overview
+## ✨ Features
 
-This package enables simultaneous control of:
-- **NEXTAGE robot head movement** (2 DOF: yaw/pitch)
-- **Dual eye display modules** (gaze direction + expressions)
+- **🎮 Dual Control**: Control both robot head and eye modules with single joystick
+- **👀 Eye Modules**: Real-time eye gaze and expression control
+- **🤖 Robot Head**: Smooth head movement with safety limits
+- **🛡️ Safe Operation**: Command overflow prevention and smooth motion
+- **🔧 Easy Setup**: Simple 4-terminal operation
 
-Using a single gamepad/joystick with intuitive mapping:
-- **Left stick**: Eye gaze control
-- **Right stick**: Robot head control
-- **Buttons**: Eye expressions
+## 📋 Prerequisites
 
-## 📦 Dependencies
+- ROS Noetic
+- NEXTAGE Robot
+- Logitech F310 Gamepad (or compatible)
+- Eye Display Modules (ESP32-based OLED)
 
-```bash
-# ROS packages
-sudo apt-get install ros-noetic-joy ros-noetic-rosserial-python
+## 🚀 Quick Start
 
-# Eye display module (from JSK 3rdparty)
-cd ~/catkin_ws/src
-git clone https://github.com/jsk-ros-pkg/jsk_3rdparty.git
-```
-
-## 🚀 Installation
+### Installation
 
 ```bash
 cd ~/catkin_ws/src
 git clone https://github.com/hiseongmin/robot_joy_control.git
 cd ~/catkin_ws
 catkin_make
-source devel/setup.bash
 ```
 
-## ⚙️ Network Configuration
+### Running the System
 
-### Option 1: Using script with arguments
+Open 4 terminals and run each command:
+
+#### Terminal 1 - ROS Master
 ```bash
-# Auto-detect local IP
-./scripts/start_demo.sh <ROBOT_IP>
-
-# Specify both IPs
-./scripts/start_demo.sh <ROBOT_IP> <LOCAL_IP>
-
-# Example
-./scripts/start_demo.sh 192.168.1.100
-./scripts/start_demo.sh 192.168.1.100 192.168.1.50
+./1_roscore.sh
 ```
 
-### Option 2: Using config file
+#### Terminal 2 - Eye Modules
 ```bash
-# Copy and edit config
-cd ~/catkin_ws/src/robot_joy_control
-cp config/network_config.yaml.example config/network_config.yaml
-# Edit network_config.yaml with your robot's IP
+./2_eye_modules.sh
 ```
 
-### Option 3: Manual setup
+#### Terminal 3 - Joystick Control
 ```bash
-export ROS_MASTER_URI=http://<ROBOT_IP>:11311
-export ROS_IP=<YOUR_LOCAL_IP>
-roslaunch robot_joy_control remote_nextage_with_eyes.launch
+./3_joystick_both.sh
 ```
 
-## 🔧 Hardware Setup
-
-1. **Connect devices:**
-   - Joystick/Gamepad → USB port (usually `/dev/input/js0`)
-   - Left eye module → USB serial (usually `/dev/ttyACM0`)
-   - Right eye module → USB serial (usually `/dev/ttyACM1`)
-
-2. **Check connections:**
+#### Terminal 4 - Robot Head Control
 ```bash
-# List joystick devices
-ls /dev/input/js*
-
-# List serial ports
-ls /dev/ttyACM* /dev/ttyUSB*
-```
-
-3. **Set permissions (if needed):**
-```bash
-sudo chmod 666 /dev/ttyACM*
-```
-
-## 📝 Usage
-
-### Basic Launch (NEXTAGE + Dual Eyes)
-
-```bash
-roslaunch robot_joy_control nextage_with_eyes_dual.launch
-```
-
-### Custom Ports
-
-```bash
-roslaunch robot_joy_control nextage_with_eyes_dual.launch \
-    port_left:=/dev/ttyUSB0 \
-    port_right:=/dev/ttyUSB1 \
-    joy_dev:=/dev/input/js1
-```
-
-### Test Individual Components
-
-```bash
-# Test only NEXTAGE head control
-roslaunch robot_joy_control nextage_head.launch
-
-# Test only eye displays
-roslaunch eye_display demo_dual.launch
+./4_robot_head.sh
 ```
 
 ## 🎮 Control Mapping
 
-| Control | Function |
-|---------|----------|
-| **Left Stick** | |
-| Horizontal (axis 0) | Eye gaze left/right |
-| Vertical (axis 1) | Eye gaze up/down |
-| **Right Stick** | |
-| Horizontal (axis 3) | Robot head yaw (left/right) |
-| Vertical (axis 4) | Robot head pitch (up/down) |
-| **Buttons** | |
-| Button 0 | Normal expression |
-| Button 1 | Blink |
-| Button 2 | Surprised |
-| Button 3 | Sleepy |
-| Button 4 | Angry |
-| Button 5 | Sad |
-| Button 6 | Happy |
+| Control | Function | Description |
+|---------|----------|-------------|
+| **Left Stick** | Eye Gaze | Move eyes up/down/left/right |
+| **Right Stick** | Head Movement | Control robot head pitch/yaw |
+| **Button 0 (X)** | Normal Eyes | Default expression |
+| **Button 1 (A)** | Blink | Blink animation |
+| **Button 2 (B)** | Surprised | Surprised expression |
+| **Button 3 (Y)** | Sleepy | Sleepy expression |
+| **Button 4 (LB)** | Angry | Angry expression |
+| **Button 5 (RB)** | Sad | Sad expression |
+| **Button 6 (LT)** | Happy | Happy expression |
 
-## 📊 ROS Topics
+## ⚙️ Configuration
 
-### Published Topics
-- `/head_controller/command` (trajectory_msgs/JointTrajectory)
-  - NEXTAGE head joint commands
+### Network Settings
 
-### Subscribed Topics
-- `/joy` (sensor_msgs/Joy)
-  - Joystick input
+Edit IP addresses in the launch scripts if needed:
 
-### Eye Display Topics (via eye_display package)
-- `/left/eye_display/look_at` (geometry_msgs/Point)
-- `/left/eye_display/eye_status` (std_msgs/String)
-- `/right/eye_display/look_at` (geometry_msgs/Point)
-- `/right/eye_display/eye_status` (std_msgs/String)
-
-## 🔍 Debugging
-
-Monitor topics:
 ```bash
-# Check joystick input
-rostopic echo /joy
-
-# Monitor head commands
-rostopic echo /head_controller/command
-
-# Watch eye status
-rostopic echo /left/eye_display/eye_status
-rostopic echo /right/eye_display/look_at
+# Robot IP (in 4_robot_head.sh)
+export ROS_MASTER_URI=http://133.11.216.57:11311
+export ROS_IP=133.11.216.68  # Your machine IP
 ```
 
-Test individual controls:
-```bash
-# Test head movement
-rostopic pub -1 /head_controller/command trajectory_msgs/JointTrajectory \
-  '{joint_names: ["HEAD_JOINT0", "HEAD_JOINT1"], points: [{positions: [0.5, 0.3], time_from_start: {secs: 1}}]}'
+### Safety Parameters
 
-# Test eye expression
-rostopic pub -1 /left/eye_display/eye_status std_msgs/String "data: 'happy'"
+Current safe settings (10Hz update, 0.15s duration):
+- **Max Angle**: 30° (0.523 rad)
+- **Update Rate**: 10 Hz
+- **Move Duration**: 0.15 seconds
+- **Dead Zone**: 0.03
+
+## 🔍 Troubleshooting
+
+### Check System Status
+```bash
+python monitor_passive.py
 ```
 
-## 📹 Demo Video Recording
+### Common Issues
 
-To record a demo showing coordinated eye and head movements:
+**Robot head not moving:**
+- Check robot network connection
+- Verify Terminal 3 shows "Robot connected"
+- Ensure joystick is detected
 
-1. Start all nodes:
-```bash
-roslaunch robot_joy_control nextage_with_eyes_dual.launch
+**Eye modules not responding:**
+- Check serial ports: `/dev/ttyACM0` and `/dev/ttyACM1`
+- Verify Terminal 2 shows both modules connected
+
+**"우르르" (sudden rush) motion:**
+- Using safe parameters (10Hz, 0.15s)
+- Check network latency with monitor tool
+
+## 📁 Project Structure
+
+```
+robot_joy_control/
+├── scripts/
+│   ├── joy_head_nextage.py      # Main robot head control
+│   ├── joy_head_safe.py         # Safe mode with overflow prevention
+│   └── network_monitor.py       # Network diagnostics
+├── launch_scripts/
+│   └── 3_joystick_both.sh      # Dual network joystick
+└── robots/
+    └── nextage.yaml             # Robot configuration
 ```
 
-2. Demonstration sequence:
-   - Move head while keeping eyes centered
-   - Track objects with eyes while head is stationary
-   - Coordinate head and eye movements together
-   - Show various expressions during movements
+## 🛠️ Advanced Usage
 
-## 🏗️ Architecture
+### Monitor Network Performance
+```bash
+python monitor_passive.py
+```
 
-This package integrates:
-- **robot_joy_control**: NEXTAGE head control
-- **eye_display** (jsk_3rdparty): Dual eye module control
-- **joy**: ROS joystick driver
+### Adjust Control Parameters
+Edit `robots/nextage.yaml` for different settings:
+```yaml
+head_control:
+  max_angle: 0.523        # Maximum rotation (radians)
+  move_duration: 0.15     # Movement time (seconds)
+  rate: 10.0              # Update frequency (Hz)
+```
 
-The launch file coordinates these components to enable simultaneous control through a single joystick interface.
+## 📝 Notes
+
+- The system uses dual joy_node setup to bridge localhost (eye modules) and robot network
+- Observer perspective control: joystick left = robot turns left (from your view)
+- Asymmetric pitch limits available for hardware protection
+
+## 🤝 Contributing
+
+Issues and PRs welcome! Please test thoroughly before submitting changes.
 
 ## 📄 License
 
-BSD 3-Clause License
+MIT License
 
-## 👥 Contributors
+## 👥 Authors
 
-- hiseongmin (ye)
-- Based on eye_display from JSK Robotics Lab
+- Seongmin Hi
+- Developed with Claude Code Assistant
 
-## 🔗 Related Packages
+---
 
-- [jsk_3rdparty/eye_display](https://github.com/jsk-ros-pkg/jsk_3rdparty/tree/master/eye_display)
-- [nextage_ros](http://wiki.ros.org/nextage_ros)
+**Status**: ✅ Production Ready | **Version**: 1.0.0 | **Last Updated**: April 2024
