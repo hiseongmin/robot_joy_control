@@ -11,11 +11,11 @@
        - Pitch inverted for intuitive control
        ================================================================ -->
 
-  <!-- Parameters -->
+  <!-- Parameters - OPTIMIZED for fast response -->
   <arg name="joy_dev"         default="/dev/input/js0" />
-  <arg name="max_angle"       default="0.523" />  <!-- 30 deg instead of 60 deg -->
-  <arg name="move_duration"   default="0.7" />    <!-- Slower than default 0.5 -->
-  <arg name="rate"            default="10.0" />   <!-- 10Hz update rate -->
+  <arg name="max_angle"       default="0.942" />  <!-- 54 deg = 90% of 60 deg -->
+  <arg name="move_duration"   default="0.1" />    <!-- Fast response -->
+  <arg name="rate"            default="30.0" />   <!-- 30Hz update rate -->
 
   <!-- Joystick Node -->
   <node pkg="joy" type="joy_node" name="joy_node" output="screen">
@@ -29,7 +29,7 @@
     <param name="max_angle"      value="$(arg max_angle)" />
     <param name="axis_yaw"       value="3" />        <!-- Right stick horizontal -->
     <param name="axis_pitch"     value="4" />        <!-- Right stick vertical -->
-    <param name="snap_threshold" value="0.1" />
+    <param name="snap_threshold" value="0.02" />      <!-- More sensitive -->
     <param name="move_duration"  value="$(arg move_duration)" />
     <param name="yaw_invert"     value="1.0" />
     <param name="pitch_invert"   value="-1.0" />     <!-- Inverted for intuitive control -->

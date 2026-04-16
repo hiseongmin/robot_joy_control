@@ -14,9 +14,9 @@
   <arg name="joy_dev"         default="/dev/input/js0" />
 
   <!-- Head control parameters (optimized for speed) -->
-  <arg name="max_angle"       default="0.733" />  <!-- 42 deg = 70% of 60 deg -->
-  <arg name="move_duration"   default="0.3" />    <!-- Faster response -->
-  <arg name="head_rate"       default="20.0" />   <!-- Higher update rate -->
+  <arg name="max_angle"       default="0.942" />  <!-- 54 deg = 90% of 60 deg -->
+  <arg name="move_duration"   default="0.1" />    <!-- Very fast response -->
+  <arg name="head_rate"       default="30.0" />   <!-- High update rate -->
 
   <!-- Eye serial ports -->
   <arg name="port_right"      default="/dev/ttyACM1" />
@@ -52,7 +52,7 @@
     <param name="max_angle"      value="$(arg max_angle)" />
     <param name="axis_yaw"       value="3" />  <!-- Right stick X -->
     <param name="axis_pitch"     value="4" />  <!-- Right stick Y -->
-    <param name="snap_threshold" value="0.05" />  <!-- Lower threshold for better response -->
+    <param name="snap_threshold" value="0.02" />  <!-- Very low threshold for instant response -->
     <param name="move_duration"  value="$(arg move_duration)" />
     <param name="yaw_invert"     value="1.0" />
     <param name="pitch_invert"   value="-1.0" />
