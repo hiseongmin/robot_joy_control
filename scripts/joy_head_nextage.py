@@ -94,8 +94,17 @@ def timer_cb(event):
 
     # Map joystick values to joint angles
     # Formula: joystick_value * max_angle * invert_factor
-    # Example: 0.5 * 0.523 * 1.0 = 0.2615 rad (15 degrees right)
+    #
+    # YAW (left-right rotation):
+    # With yaw_invert=-1.0 (observer perspective):
+    #   Stick LEFT (-1.0) → yaw = -1.0 * 0.523 * -1.0 = +0.523 rad (robot turns left from observer view)
+    #   Stick RIGHT (+1.0) → yaw = +1.0 * 0.523 * -1.0 = -0.523 rad (robot turns right from observer view)
     yaw = raw_yaw * max_angle * yaw_invert
+
+    # PITCH (up-down tilt):
+    # With pitch_invert=-1.0 (intuitive):
+    #   Stick UP (+1.0) → pitch = +1.0 * 0.523 * -1.0 = -0.523 rad (robot looks up)
+    #   Stick DOWN (-1.0) → pitch = -1.0 * 0.523 * -1.0 = +0.523 rad (robot looks down)
     pitch = raw_pitch * max_angle * pitch_invert
 
     # Build JointTrajectory message for robot controller
@@ -152,7 +161,14 @@ if __name__ == "__main__":
     move_duration = rospy.get_param("~move_duration", 0.5)   # seconds
 
     # DIRECTION: Invert controls if needed (-1.0 to flip, 1.0 normal)
+    # OBSERVER PERSPECTIVE CONTROL:
+    # yaw_invert = -1.0: When standing in front of robot and pushing stick LEFT,
+    #                    robot head turns to YOUR LEFT (robot's right)
+    # yaw_invert = 1.0:  Robot's own perspective (stick left = robot turns its left)
     yaw_invert = rospy.get_param("~yaw_invert", 1.0)
+
+    # pitch_invert = -1.0: Stick UP makes robot look UP (intuitive)
+    # pitch_invert = 1.0:  Stick UP makes robot look DOWN (inverted)
     pitch_invert = rospy.get_param("~pitch_invert", 1.0)
 
     # UPDATE RATE: How often to send commands to robot (Hz)

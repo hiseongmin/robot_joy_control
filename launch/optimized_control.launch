@@ -14,7 +14,7 @@
   <arg name="joy_dev"         default="/dev/input/js0" />
 
   <!-- Head control parameters (optimized for response with safe speed) -->
-  <arg name="max_angle"       default="0.523" />  <!-- 30 deg = 50% of 60 deg (safe) -->
+  <arg name="max_angle"       default="0.523" />  <!-- 30 deg = 50% of 60 deg (smooth & safe) -->
   <arg name="move_duration"   default="0.1" />    <!-- Very fast response -->
   <arg name="head_rate"       default="30.0" />   <!-- High update rate -->
 
@@ -54,7 +54,10 @@
     <param name="axis_pitch"     value="4" />  <!-- Right stick Y -->
     <param name="snap_threshold" value="0.02" />  <!-- Very low threshold for instant response -->
     <param name="move_duration"  value="$(arg move_duration)" />
-    <param name="yaw_invert"     value="1.0" />
+    <!-- Observer perspective control (facing robot front):
+         yaw_invert=-1.0: LEFT stick = robot turns LEFT from observer view
+         pitch_invert=-1.0: UP stick = robot looks UP -->
+    <param name="yaw_invert"     value="-1.0" />  <!-- Inverted for observer perspective -->
     <param name="pitch_invert"   value="-1.0" />
     <param name="rate"           value="$(arg head_rate)" />
   </node>
