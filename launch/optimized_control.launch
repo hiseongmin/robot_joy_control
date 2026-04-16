@@ -1,0 +1,94 @@
+<launch>
+  <!-- ================================================================
+       Optimized Control Launch File
+
+       Improvements:
+       - Faster update rate (20Hz instead of 10Hz)
+       - Reduced movement duration (0.3s instead of 0.7s)
+       - Higher max angle (70% instead of 50%)
+       - Correct serial port mapping for eye modules
+       - Better synchronization between components
+       ================================================================ -->
+
+  <!-- Parameters -->
+  <arg name="joy_dev"         default="/dev/input/js0" />
+
+  <!-- Head control parameters (optimized for speed) -->
+  <arg name="max_angle"       default="0.733" />  <!-- 42 deg = 70% of 60 deg -->
+  <arg name="move_duration"   default="0.3" />    <!-- Faster response -->
+  <arg name="head_rate"       default="20.0" />   <!-- Higher update rate -->
+
+  <!-- Eye serial ports -->
+  <arg name="port_right"      default="/dev/ttyACM1" />
+  <arg name="port_left"       default="/dev/ttyACM0" />
+  <arg name="baud"            default="115200" />
+
+  <!-- Eye movement parameters -->
+  <arg name="eye_duration"    default="0.02" />   <!-- 50Hz for eye control -->
+
+  <!-- ================================================================
+       1. Eye Display Modules (Serial Communication)
+       ================================================================ -->
+  <include file="$(find eye_display)/launch/demo_dual.launch">
+    <arg name="port_right" value="$(arg port_right)" />
+    <arg name="port_left"  value="$(arg port_left)" />
+    <arg name="baud"       value="$(arg baud)" />
+    <arg name="debug"      value="false" />
+  </include>
+
+  <!-- ================================================================
+       2. Joystick Driver
+       ================================================================ -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen">
+    <param name="dev"             value="$(arg joy_dev)" />
+    <param name="deadzone"        value="0.05" />
+    <param name="autorepeat_rate" value="30" />
+  </node>
+
+  <!-- ================================================================
+       3. Robot Head Control (Right Stick)
+       ================================================================ -->
+  <node pkg="robot_joy_control" type="joy_head_nextage.py" name="joy_head_nextage" output="screen">
+    <param name="max_angle"      value="$(arg max_angle)" />
+    <param name="axis_yaw"       value="3" />  <!-- Right stick X -->
+    <param name="axis_pitch"     value="4" />  <!-- Right stick Y -->
+    <param name="snap_threshold" value="0.05" />  <!-- Lower threshold for better response -->
+    <param name="move_duration"  value="$(arg move_duration)" />
+    <param name="yaw_invert"     value="1.0" />
+    <param name="pitch_invert"   value="-1.0" />
+    <param name="rate"           value="$(arg head_rate)" />
+  </node>
+
+  <!-- ================================================================
+       4. Eye Gaze Control (Left Stick)
+       ================================================================ -->
+
+  <!-- Right eye control -->
+  <group ns="right">
+    <node pkg="eye_display" type="joy_eye_status_ye.py" name="joy_eye_status" output="screen">
+      <param name="left_edge"      value="30.0" />
+      <param name="right_edge"     value="30.0" />
+      <param name="upper_edge"     value="30.0" />
+      <param name="bottom_edge"    value="30.0" />
+      <param name="duration"       value="$(arg eye_duration)" />
+      <param name="snap_threshold" value="0.05" />
+      <param name="offset_x"       value="10.0" />
+      <param name="offset_y"       value="5.0" />
+    </node>
+  </group>
+
+  <!-- Left eye control -->
+  <group ns="left">
+    <node pkg="eye_display" type="joy_eye_status_ye.py" name="joy_eye_status" output="screen">
+      <param name="left_edge"      value="30.0" />
+      <param name="right_edge"     value="30.0" />
+      <param name="upper_edge"     value="30.0" />
+      <param name="bottom_edge"    value="30.0" />
+      <param name="duration"       value="$(arg eye_duration)" />
+      <param name="snap_threshold" value="0.05" />
+      <param name="offset_x"       value="-10.0" />
+      <param name="offset_y"       value="5.0" />
+    </node>
+  </group>
+
+</launch>
