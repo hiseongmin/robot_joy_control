@@ -11,9 +11,9 @@
        - Pitch inverted for intuitive control
        ================================================================ -->
 
-  <!-- Parameters - OPTIMIZED for fast response -->
+  <!-- Parameters - OPTIMIZED for fast response with safe speed -->
   <arg name="joy_dev"         default="/dev/input/js0" />
-  <arg name="max_angle"       default="0.942" />  <!-- 54 deg = 90% of 60 deg -->
+  <arg name="max_angle"       default="0.523" />  <!-- 30 deg = 50% of 60 deg (safe) -->
   <arg name="move_duration"   default="0.1" />    <!-- Fast response -->
   <arg name="rate"            default="30.0" />   <!-- 30Hz update rate -->
 

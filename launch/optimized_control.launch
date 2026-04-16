@@ -13,8 +13,8 @@
   <!-- Parameters -->
   <arg name="joy_dev"         default="/dev/input/js0" />
 
-  <!-- Head control parameters (optimized for speed) -->
-  <arg name="max_angle"       default="0.942" />  <!-- 54 deg = 90% of 60 deg -->
+  <!-- Head control parameters (optimized for response with safe speed) -->
+  <arg name="max_angle"       default="0.523" />  <!-- 30 deg = 50% of 60 deg (safe) -->
   <arg name="move_duration"   default="0.1" />    <!-- Very fast response -->
   <arg name="head_rate"       default="30.0" />   <!-- High update rate -->
 
