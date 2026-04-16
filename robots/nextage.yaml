@@ -1,0 +1,41 @@
+# NEXTAGE Robot Configuration
+robot_name: "NEXTAGE"
+robot_type: "nextage"
+
+# Network Configuration
+ros_master_uri: "http://133.11.216.57:11311"
+robot_ip: "133.11.216.57"
+local_ip: "133.11.216.68"
+
+# Head Control Parameters
+head_control:
+  enabled: true
+  control_script: "joy_head_nextage.py"
+  topic: "/head_controller/command"
+  joints: ["HEAD_JOINT0", "HEAD_JOINT1"]
+
+  # Movement parameters (safe defaults)
+  max_angle: 0.523        # 30 degrees
+  move_duration: 0.15     # 150ms per movement
+  rate: 10.0              # 10Hz update rate
+
+  # Joystick mapping
+  axis_yaw: 3             # Right stick X
+  axis_pitch: 4           # Right stick Y
+  yaw_invert: -1.0        # Observer perspective
+  pitch_invert: -1.0      # Natural control
+  snap_threshold: 0.03    # Dead zone
+
+# Eye Module Configuration
+eye_modules:
+  enabled: true
+  left_port: "/dev/ttyACM0"
+  right_port: "/dev/ttyACM1"
+  axis_x: 0               # Left stick X
+  axis_y: 1               # Left stick Y
+
+# Robot-specific features
+features:
+  - "dual_arm"
+  - "stereo_vision"
+  - "head_camera"
